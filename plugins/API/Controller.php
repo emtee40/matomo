@@ -15,6 +15,7 @@ use Piwik\Common;
 use Piwik\Config;
 use Piwik\Piwik;
 use Piwik\Plugin\Report;
+use Piwik\Plugins\UsersManager\UsersManager;
 use Piwik\Url;
 use Piwik\UrlHelper;
 use Piwik\View;
@@ -67,6 +68,9 @@ class Controller extends \Piwik\Plugin\Controller
         $ApiDocumentation = new DocumentationGenerator();
         $view->countLoadedAPI = Proxy::getInstance()->getCountRegisteredClasses();
         $view->list_api_methods_with_links = $ApiDocumentation->getApiDocumentationAsString();
+
+        $view->maskedTokenAuth = UsersManager::getMaskedTokenAuth();
+
         return $view->render();
     }
 

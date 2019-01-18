@@ -308,4 +308,13 @@ class UsersManager extends \Piwik\Plugin
         $translationKeys[] = 'UsersManager_AreYouSureRemoveCapability';
         $translationKeys[] = 'UsersManager_IncludedInUsersRole';
     }
+
+    public static function getMaskedTokenAuth()
+    {
+        $tokenAuthUnprotected = 6;
+        $userTokenAuth = Piwik::getCurrentUserTokenAuth();
+        $userTokenAuth = substr($userTokenAuth, 0, $tokenAuthUnprotected)
+            . str_repeat('*', strlen($userTokenAuth) - $tokenAuthUnprotected);
+        return $userTokenAuth;
+    }
 }

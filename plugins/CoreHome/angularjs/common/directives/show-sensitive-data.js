@@ -19,7 +19,9 @@
 (function () {
     angular.module('piwikApp.directive').directive('piwikShowSensitiveData', piwikShowSensitiveData);
 
-    function piwikShowSensitiveData(){
+    piwikShowSensitiveData.$inject = ['$q'];
+
+    function piwikShowSensitiveData($q) {
         return {
             restrict: 'A',
             link: function(scope, element, attr) {
@@ -27,6 +29,7 @@
                 var sensitiveData = attr.piwikShowSensitiveData || attr.text();
                 var showCharacters = attr.showCharacters || 6;
                 var clickElement = attr.clickElementSelector || element;
+                var onShowData = attr.onShowData;
 
                 var protectedData = '';
                 if (showCharacters > 0) {
@@ -35,12 +38,25 @@
                 protectedData += sensitiveData.substr(showCharacters).replace(/./g, '*');
                 element.html(protectedData);
 
-                function onClickHandler(event) {
-                    element.html(sensitiveData);
-                    $(clickElement).css({
-                        cursor: ''
+                function onClickHandler() {
+                    var promise = $q.when();
+                    if (onShowData) {
+                        promise = scope.$apply(onShowData);
+                    }
+
+                    promise.then(function (data) {
+                        element.html(data || sensitiveData);
+                        $(clickElement).css({
+                            cursor: ''
+                        });
+                        $(clickElement).tooltip("destroy");
+
+                        $(clickElement).off('click', null, onClickHandler);
+
+                        $(clickElement).click(); // so other directives are executed even if promise was not immediate
+                    }).catch(function () {
+                        // ignore
                     });
-                    $(clickElement).tooltip("destroy");
                 }
 
                 $(clickElement).tooltip({
@@ -49,7 +65,7 @@
                     track: true
                 });
 
-                $(clickElement).one('click', onClickHandler);
+                $(clickElement).on('click', onClickHandler);
                 $(clickElement).css({
                     cursor: 'pointer'
                 });

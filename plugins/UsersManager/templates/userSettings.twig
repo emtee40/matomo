@@ -116,17 +116,40 @@
                 <a href="javascript:void(0)" class="modal-action modal-close modal-no"  ng-click="personalSettings.cancelSave()">{{ 'General_Cancel'|translate }}</a>
             </div>
         </div>
-
     </form>
 </div>
 
 <div piwik-content-block
-     content-title="{{ 'UsersManager_TokenAuth'|translate|e('html_attr') }}">
-    <pre piwik-select-on-focus id="token_auth_user" piwik-show-sensitive-data="{{ userTokenAuth }}"></pre>
+     content-title="{{ 'UsersManager_TokenAuth'|translate|e('html_attr') }}"
+>
+    <div ng-controller="PersonalSettingsController as personalSettings">
+        <pre
+            piwik-select-on-focus
+            id="token_auth_user"
+            piwik-show-sensitive-data="{{ userTokenAuth }}"
+            on-show-data="personalSettings.onShowTokenAuth()"
+        ></pre>
 
-    <button class="btn btn-link"
-            ng-controller="PersonalSettingsController as personalSettings"
-            ng-click="personalSettings.regenerateTokenAuth()">{{ 'UsersManager_TokenRegenerateTitle'|translate }}</button>
+        <button class="btn btn-link"
+                ng-click="personalSettings.regenerateTokenAuth()">{{ 'UsersManager_TokenRegenerateTitle'|translate }}</button>
+
+        <div class="modal" id="confirmPasswordForTokenAuth">
+            <div class="modal-content">
+                <h2>{{ 'UsersManager_EnterPasswordFirst'|translate }}</h2>
+
+                <div piwik-field uicontrol="password" name="currentPasswordTokenAuth" autocomplete="off"
+                     ng-model="personalSettings.passwordCurrentForTokenAuth"
+                     full-width="true"
+                     title="{{ 'UsersManager_YourCurrentPassword'|translate|e('html_attr') }}"
+                     value="">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="javascript:void(0)" class="modal-action btn" ng-click="personalSettings.getMyTokenAuth()">{{ 'General_Ok'|translate }}</a>
+                <a href="javascript:void(0)" class="modal-action modal-close modal-no" ng-click="personalSettings.showTokenAuthDeferred.reject()">{{ 'General_Cancel'|translate }}</a>
+            </div>
+        </div>
+    </div>
 </div>
 
 {{ postEvent('Template.userSettings.afterTokenAuth') }}

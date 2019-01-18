@@ -787,6 +787,7 @@ class Plugin extends \Piwik\Plugin
     {
         return array(
             'AssetManager.getStylesheetFiles' => 'getStylesheetFiles',
+            'AssetManager.getJavaScriptFiles'        => 'getJsFiles',
             'Platform.initialized' => 'detectIsApiRequest'
         );
     }
@@ -800,5 +801,10 @@ class Plugin extends \Piwik\Plugin
     {
         $stylesheets[] = "plugins/API/stylesheets/listAllAPI.less";
         $stylesheets[] = "plugins/API/stylesheets/glossary.less";
+    }
+
+    public function getJsFiles(&$jsFiles)
+    {
+        $jsFiles[] = "plugins/API/angularjs/list-all-api/list-all-api.controller.js";
     }
 }

@@ -7,14 +7,15 @@
 (function () {
     angular.module('piwikApp').controller('PersonalSettingsController', PersonalSettingsController);
 
-    PersonalSettingsController.$inject = ['piwikApi', '$window', 'piwik'];
+    PersonalSettingsController.$inject = ['piwikApi', '$window', 'piwik', '$q'];
 
-    function PersonalSettingsController(piwikApi, $window, piwik) {
+    function PersonalSettingsController(piwikApi, $window, piwik, $q) {
         // remember to keep controller very simple. Create a service/factory (model) if needed
 
         var self = this;
 
         this.doesRequirePasswordConfirmation = false;
+        this.showTokenAuthDeferred = null;
 
         function updateSettings(postParams)
         {
@@ -98,6 +99,32 @@
             }
 
             updateSettings(postParams);
+        };
+
+        this.onShowTokenAuth = function () {
+            this.showTokenAuthDeferred = $q.defer();
+
+            angular.element('#confirmPasswordForTokenAuth').openModal({
+                dismissible: false, ready: function () {
+                    $('.modal.open #currentPassword').focus();
+                }
+            });
+
+            return this.showTokenAuthDeferred.promise;
+        };
+
+        this.getMyTokenAuth = function() {
+            var self = this;
+
+            piwikApi.post({
+                method: 'UsersManager.getMyTokenAuth'
+            }, {
+                passwordConfirmation: self.passwordCurrentForTokenAuth
+            }).then(function (response) {
+                angular.element('#confirmPasswordForTokenAuth').closeModal();
+
+                self.showTokenAuthDeferred.resolve(response.value);
+            });
         };
     }
 })();

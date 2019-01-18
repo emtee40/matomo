@@ -180,7 +180,9 @@ class Controller extends ControllerAdmin
         $userLogin = Piwik::getCurrentUserLogin();
         $user = Request::processRequest('UsersManager.getUser', array('userLogin' => $userLogin));
         $view->userEmail = $user['email'];
-        $view->userTokenAuth = Piwik::getCurrentUserTokenAuth();
+
+        $view->userTokenAuth = UsersManager::getMaskedTokenAuth();
+
         $view->ignoreSalt = $this->getIgnoreCookieSalt();
 
         $userPreferences = new UserPreferences();

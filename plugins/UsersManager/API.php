@@ -897,14 +897,7 @@ class API extends \Piwik\Plugin\API
         }
 
         if ($changeShouldRequirePasswordConfirmation && $requirePasswordConfirmation) {
-            if (empty($passwordConfirmation)) {
-                throw new Exception(Piwik::translate('UsersManager_ConfirmWithPassword'));
-            }
-
-            $loginCurrentUser = Piwik::getCurrentUserLogin();
-            if (!$this->passwordVerifier->isPasswordCorrect($loginCurrentUser, $passwordConfirmation)) {
-                throw new Exception(Piwik::translate('UsersManager_CurrentPasswordNotCorrect'));
-            }
+            $this->confirmCurrentUserPassword($passwordConfirmation);
         }
 
         $alias = $this->getCleanAlias($alias, $userLogin);
@@ -1340,6 +1333,19 @@ class API extends \Piwik\Plugin\API
         return $user['token_auth'];
     }
 
+    /**
+     * Returns the current user's token auth, after password confirmation.
+     *
+     * @param string $passwordConfirmation The currently logged in user's password.
+     * @return string
+     * @throws Exception
+     */
+    public function getMyTokenAuth($passwordConfirmation)
+    {
+        $this->confirmCurrentUserPassword($passwordConfirmation);
+        return Piwik::getCurrentUserTokenAuth();
+    }
+
     private function isUserHasAdminAccessTo($idSite)
     {
         try {
@@ -1376,5 +1382,17 @@ class API extends \Piwik\Plugin\API
             }
         }
         return [$roles, $capabilities];
+    }
+
+    private function confirmCurrentUserPassword($passwordConfirmation)
+    {
+        if (empty($passwordConfirmation)) {
+            throw new Exception(Piwik::translate('UsersManager_ConfirmWithPassword'));
+        }
+
+        $loginCurrentUser = Piwik::getCurrentUserLogin();
+        if (!$this->passwordVerifier->isPasswordCorrect($loginCurrentUser, $passwordConfirmation)) {
+            throw new Exception(Piwik::translate('UsersManager_CurrentPasswordNotCorrect'));
+        }
     }
 }
